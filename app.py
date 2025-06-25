@@ -6,14 +6,18 @@ import os
 
 app = Flask(__name__)
 
-# セキュリティ情報（環境変数で安全に管理してください）
-CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", "lT+wIbkpj93F0XLr9TCI7NmqGx1C3trylxDvJ5xW5cvQIrHsei7cyKCamVvyvYMWm5aM74bDkdsYubnF0ZKlNKV1Zb9HVNL884vuIGesI5rMzXAzqpY4PcYdDi9VyFj6EEoctGG5zfr0g2b0SOHPDAdB04t89/1O/w1cDnyilFU=")
-CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET", "e7330e654413863be5c40c0a87d595cf")
+# 環境変数から取得（RenderのEnvironmentに設定したもの）
+CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
+CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET")
+
+# エラー対策
+if not CHANNEL_ACCESS_TOKEN or not CHANNEL_SECRET:
+    raise Exception("LINEのトークンやシークレットが設定されていません。")
 
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
 
-# CSV読み込み
+# CSV読み込み（起動時に一度）
 garbage_data = []
 with open('garbage.csv', encoding='utf-8') as f:
     reader = csv.reader(f)
@@ -27,7 +31,7 @@ with open('garbage.csv', encoding='utf-8') as f:
             'related': [r for r in row[4:] if r]
         })
 
-# ごみ名を検索
+# ごみ名検索関数
 def search_garbage(query):
     for item in garbage_data:
         if query in item['name']:
@@ -56,11 +60,12 @@ def callback():
     return 'OK'
 
 @handler.add(MessageEvent, message=TextMessage)
-def handle_text_message(event):
-    query = event.message.text.strip()
-    reply = search_garbage(query)
+def handle_message(event):
+    user_text = event.message.text.strip()
+    reply = search_garbage(user_text)
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
 
-# 起動
+# Render用：0.0.0.0 + PORT環境変数で公開ポート指定
 if __name__ == "__main__":
-    app.run(port=5000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
