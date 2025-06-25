@@ -7,8 +7,8 @@ import os
 app = Flask(__name__)
 
 # セキュリティ情報（環境変数で安全に管理してください）
-CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", "ここに貼ってもOK")
-CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET", "ここに貼ってもOK")
+CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", "lT+wIbkpj93F0XLr9TCI7NmqGx1C3trylxDvJ5xW5cvQIrHsei7cyKCamVvyvYMWm5aM74bDkdsYubnF0ZKlNKV1Zb9HVNL884vuIGesI5rMzXAzqpY4PcYdDi9VyFj6EEoctGG5zfr0g2b0SOHPDAdB04t89/1O/w1cDnyilFU=")
+CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET", "e7330e654413863be5c40c0a87d595cf")
 
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
